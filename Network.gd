@@ -215,7 +215,7 @@ func kick_all(reason : String, is_disconnection : bool = false):
 		kick_player(1, player_id, reason, is_disconnection)
 
 func on_close():
-	kick_all("Server closed")
+	kick_all("Server closed", true)
 
 func close_server():
 	clear_connection()
