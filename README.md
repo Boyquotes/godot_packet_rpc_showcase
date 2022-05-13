@@ -33,7 +33,7 @@ It is made of 3 arguments:
 # packet_recieved(peer_id : int, packet_id : int, packet_data)
 Network.connect("packet_recieved", self, "packet_recieved")
 func packet_recieved(peer_id, packet_id, packet_data):
-  if packet_id == packets.UPDATE_CONFIRMED:
+  if packet_id == Network.packets.UPDATE_CONFIRMED:
     print("Welcome! Connected successfully.")
 ```
 It is made to be as much as beginner-friendly as possible and can be largely expanded. All extra ENet signals can be connected (atleast for some exceptions, see how conecting/registration works).
