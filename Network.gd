@@ -7,6 +7,8 @@ var max_players : int = 12
 signal server_created
 signal joined_server
 signal packet_recieved(peer_id, packet_id, packet_data)
+signal registered_player_connected(peer_id)
+signal registered_player_disconnected(peer_id)
 
 var players : Dictionary = {
 	# ID : {"player_name":"player"}
@@ -29,6 +31,8 @@ enum packets {
 	UPDATE_PLAYER_DATA,
 	INFORM_DISCONNECTION,
 	GET_PLAYER_AUTHORITY,
+	# Game
+	UPDATE_PLAYER_TRANSFORM,
 }
 
 var timeout_in_seconds : float = 10
@@ -96,7 +100,7 @@ func has_and_is_server():
 	return result
 
 func packet_recieved(peer_id, packet_id, packet_data):
-	print("PACKET RECIEVED - Sender: ", peer_id, " - PACKET ID: ", packet_id, " - PACKET_DATA: ", packet_data)
+#	print("PACKET RECIEVED - Sender: ", peer_id, " - PACKET ID: ", packet_id, " - PACKET_DATA: ", packet_data)
 	
 	if packet_id == packets.ASK_CONNECTION:
 		if has_and_is_server():
@@ -132,11 +136,19 @@ func packet_recieved(peer_id, packet_id, packet_data):
 				send_packet_to_id(peer_id, packets.UPDATE_CONFIRMED, null)
 				players[peer_id] = packet_data
 				send_packet_to_everyone(packets.UPDATE_PLAYER_DATA, players)
+				
+				emit_signal("registered_player_connected", peer_id)
 			else:
 				if !is_player_registered(peer_id):
 					kick_player(1, peer_id, "Registration failed.\nReason: " + reason, true)
 	if packet_id == packets.UPDATE_PLAYER_DATA:
-		players = packet_data
+		if peer_id == 1:
+			players = packet_data
+	if packet_id == packets.INFORM_DISCONNECTION:
+		if has_and_is_server():
+			if peer_id != 1:
+				if is_player_registered(peer_id):
+					emit_signal("registered_player_disconnected", peer_id)
 
 # Server Side
 
@@ -144,7 +156,7 @@ func get_player_names():
 	var names = []
 	
 	for player in players:
-		names.append(player["player_name"])
+		names.append(players[player]["player_name"])
 	
 	return names
 
@@ -219,14 +231,20 @@ func player_connected(player_id):
 	pass
 
 func player_disconnected(player_id):
-	players.erase(player_id)
+	if has_and_is_server():
+		if is_player_registered(player_id):
+			players.erase(player_id)
 
 func kick_all(reason : String, is_disconnection : bool = false):
 	for player_id in players.keys():
 		kick_player(1, player_id, reason, is_disconnection)
 
 func on_close():
-	kick_all("Server closed", true)
+	if has_and_is_server():
+		kick_all("Server closed", true)
+	else:
+		if get_tree().network_peer != null:
+			send_packet_to_id(1, packets.INFORM_DISCONNECTION, null)
 
 func close_server():
 	clear_connection()
