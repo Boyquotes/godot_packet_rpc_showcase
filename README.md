@@ -20,12 +20,15 @@ Start the project and click on the connect button to connect to localhost (127.0
 ## Server hosting
 Run the project with the command line argument "--host" in order to host a server.
 ## Sending packets
-Two default methods are made for sending packets:
+Four default methods are made for sending packets:
 ```gdscript
 Network.send_packet_to_everyone(packet_id : int, packet_data)
 Network.send_packet_to_id(target_id : int, packet_id : int, packet_data)
+Network.send_fast_packet_to_everyone(packet_id : int, packet_data)
+Network.send_fast_packet_to_id(target_id : int, packet_id : int, packet_data)
 ```
-They're pretty self explainatory.
+Sending **regular packets** will make sure they arrive to their destinaries, but too much regular packets can slow down performance.
+**Fast packets** will deliver fast packets that can get lost (movement, rotation etc...).
 ## Grabbing and handling packets
 Connect the Network's singleton "packet_recieved" signal to intercept when a packet got recieved.
 It is made of 3 arguments:
