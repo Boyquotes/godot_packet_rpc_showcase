@@ -7,6 +7,8 @@ var max_players : int = 12
 signal server_created
 signal joined_server
 signal packet_recieved(peer_id, packet_id, packet_data)
+signal registered_player_connected(peer_id)
+signal registered_player_disconnected(peer_id)
 
 var players : Dictionary = {
 	# ID : {"player_name":"player"}
@@ -134,12 +136,19 @@ func packet_recieved(peer_id, packet_id, packet_data):
 				send_packet_to_id(peer_id, packets.UPDATE_CONFIRMED, null)
 				players[peer_id] = packet_data
 				send_packet_to_everyone(packets.UPDATE_PLAYER_DATA, players)
+				
+				emit_signal("registered_player_connected", peer_id)
 			else:
 				if !is_player_registered(peer_id):
 					kick_player(1, peer_id, "Registration failed.\nReason: " + reason, true)
 	if packet_id == packets.UPDATE_PLAYER_DATA:
 		if peer_id == 1:
 			players = packet_data
+	if packet_id == packets.INFORM_DISCONNECTION:
+		if has_and_is_server():
+			if peer_id != 1:
+				if is_player_registered(peer_id):
+					emit_signal("registered_player_disconnected", peer_id)
 
 # Server Side
 
