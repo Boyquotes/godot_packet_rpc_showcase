@@ -44,7 +44,7 @@ func create_connections():
 
 func _ready():
 	for argument in OS.get_cmdline_args():
-		if argument.find("--host"):
+		if "--host" in argument:
 			create_server()
 	
 	create_connections()
