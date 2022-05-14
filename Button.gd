@@ -136,7 +136,8 @@ func packet_recieved(peer_id, packet_id, packet_data):
 				if !is_player_registered(peer_id):
 					kick_player(1, peer_id, "Registration failed.\nReason: " + reason, true)
 	if packet_id == packets.UPDATE_PLAYER_DATA:
-		players = packet_data
+		if peer_id == 1:
+			players = packet_data
 
 # Server Side
 
