@@ -29,6 +29,8 @@ enum packets {
 	UPDATE_PLAYER_DATA,
 	INFORM_DISCONNECTION,
 	GET_PLAYER_AUTHORITY,
+	# Game
+	UPDATE_PLAYER_TRANSFORM,
 }
 
 var timeout_in_seconds : float = 10
@@ -96,7 +98,7 @@ func has_and_is_server():
 	return result
 
 func packet_recieved(peer_id, packet_id, packet_data):
-	print("PACKET RECIEVED - Sender: ", peer_id, " - PACKET ID: ", packet_id, " - PACKET_DATA: ", packet_data)
+#	print("PACKET RECIEVED - Sender: ", peer_id, " - PACKET ID: ", packet_id, " - PACKET_DATA: ", packet_data)
 	
 	if packet_id == packets.ASK_CONNECTION:
 		if has_and_is_server():
@@ -145,7 +147,7 @@ func get_player_names():
 	var names = []
 	
 	for player in players:
-		names.append(player["player_name"])
+		names.append(players[player]["player_name"])
 	
 	return names
 
@@ -229,7 +231,11 @@ func kick_all(reason : String, is_disconnection : bool = false):
 		kick_player(1, player_id, reason, is_disconnection)
 
 func on_close():
-	kick_all("Server closed", true)
+	if has_and_is_server():
+		kick_all("Server closed", true)
+	else:
+		if get_tree().network_peer != null:
+			send_packet_to_id(1, packets.INFORM_DISCONNECTION, null)
 
 func close_server():
 	clear_connection()
