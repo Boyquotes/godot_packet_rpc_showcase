@@ -4,6 +4,8 @@ var peer : NetworkedMultiplayerENet = NetworkedMultiplayerENet.new()
 var server_port : int = 12345
 var max_players : int = 12
 
+signal server_created
+signal joined_server
 signal packet_recieved(peer_id, packet_id, packet_data)
 
 var players : Dictionary = {
@@ -171,6 +173,7 @@ func create_server():
 	
 	peer.create_server(server_port, max_players)
 	bind_peer()
+	emit_signal("server_created")
 
 func has_authority(player_id : int): # Authority can only be seen by Server.
 	var result = false
@@ -238,7 +241,7 @@ func connect_to_server(ip_address : String):
 
 func connected_ok():
 	# Wait to get accepted by server.
-	pass
+	emit_signal("joined_server")
 
 func connected_fail():
 	# Do whatever happens when we cant connect.
