@@ -28,6 +28,7 @@ Network.send_fast_packet_to_everyone(packet_id : int, packet_data)
 Network.send_fast_packet_to_id(target_id : int, packet_id : int, packet_data)
 ```
 Sending **regular packets** will make sure they arrive to their destinaries, but too much regular packets can slow down performance.
+
 **Fast packets** will deliver fast packets that can get lost (movement, rotation etc...).
 ## Grabbing and handling packets
 Connect the Network's singleton "packet_recieved" signal to intercept when a packet got recieved.
