@@ -60,9 +60,17 @@ func send_packet_to_everyone(packet_id : int, packet_data):
 	if get_tree().get_network_peer() != null:
 		rpc("send_packet", packet_id, packet_data)
 
+func send_fast_packet_to_everyone(packet_id : int, packet_data):
+	if get_tree().get_network_peer() != null:
+		rpc_unreliable("send_packet", packet_id, packet_data)
+
 func send_packet_to_id(target_id : int, packet_id : int, packet_data):
 	if get_tree().get_network_peer() != null:
 		rpc_id(target_id, "send_packet", packet_id, packet_data)
+
+func send_fast_packet_to_id(target_id : int, packet_id : int, packet_data):
+	if get_tree().get_network_peer() != null:
+		rpc_unreliable_id(target_id, "send_packet", packet_id, packet_data)
 
 remote func send_packet(packet_id : int, packet_data):
 	var player_id = get_tree().get_rpc_sender_id() # 1 is server
